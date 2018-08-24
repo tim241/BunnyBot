@@ -33,12 +33,7 @@ namespace Http
         /// <summary>
         /// Returns GET request value of given address
         /// </summary>
-        public static string GetRequest(string address)
-        {
-            string[] splitAddress = address.Split(GetBase(address));
-
-            return splitAddress[1];
-        }
+        public static string GetRequest(string address) => address.Split(GetBase(address))[1];
         /// <summary>
         /// Returns port of given address
         /// </summary>
