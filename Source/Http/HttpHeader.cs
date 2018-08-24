@@ -17,7 +17,7 @@ namespace Http
             string returnHeader = null;
 
             if (!string.IsNullOrEmpty(header.GET))
-                returnHeader += $"GET {header.GET} HTTP/1.1\r\n";
+                returnHeader += $"GET {header.GET}\r\n";
 
             if (!string.IsNullOrEmpty(header.POST))
                 returnHeader += $"POST {header.POST}\r\n";
