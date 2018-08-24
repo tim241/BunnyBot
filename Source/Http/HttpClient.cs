@@ -59,10 +59,6 @@ namespace Http
                 Console.WriteLine(data);
             }
         }
-        public void FirstRequest(string GET, string POST, string AUTHORIZE)
-        {
-
-        }
         // Implement IDisposable.
         public void Dispose()
         {
