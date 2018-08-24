@@ -35,10 +35,11 @@ namespace Http
 
             isHttps = Http.Url.IsHttps(address);
             baseAddress = Http.Url.GetBase(address);
+            serverPort = Http.Url.GetPort(address);
+
             header = httpHeader;
 
             serverAddress = Dns.GetHostEntry(baseAddress).AddressList[0].ToString();
-            serverPort = Http.Url.GetPort(address);
         }
         /// <summary>
         /// Connects to HTTP server
