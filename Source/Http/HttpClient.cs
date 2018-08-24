@@ -31,7 +31,7 @@ namespace Http
         public HttpClient(string address, HttpHeader httpHeader)
         {
             if (address == null)
-                throw new ArgumentNullException("serverAddress");
+                throw new ArgumentNullException("address");
 
             isHttps = Http.Url.IsHttps(address);
             baseAddress = Http.Url.GetBase(address);
