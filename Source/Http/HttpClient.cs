@@ -32,7 +32,10 @@ namespace Http
         {
             if (address == null)
                 throw new ArgumentNullException("address");
-
+                
+            if(httpHeader == null)
+                throw new ArgumentNullException("httpHeader");
+            
             isHttps = Http.Url.IsHttps(address);
             baseAddress = Http.Url.GetBase(address);
             serverPort = Http.Url.GetPort(address);
