@@ -7,6 +7,9 @@ using System.Net.Security;
 
 namespace Http
 {
+    /// <summary>
+    /// a HTTP client
+    /// </summary>
     public class HttpClient : IDisposable
     {
         private TcpClient client { get; set; }
