@@ -15,9 +15,11 @@ namespace Http
             if (address == null)
                 throw new ArgumentNullException("url");
 
-            if (address.StartsWith("https://") || address.StartsWith("http://"))
-                returnAddress = returnAddress.Split("ttps://")[1];
-
+            foreach(string item in new string[] { "https://", "http://"})
+            {
+                if (address.StartsWith(item))
+                    returnAddress = returnAddress.Split(item)[1];
+            }
             if (address.Contains("www."))
                 returnAddress = returnAddress.Split("www.")[1];
 

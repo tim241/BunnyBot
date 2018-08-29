@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.ComponentModel;
 using System.Net.Security;
+using System.Text;
 
 namespace Http
 {
@@ -13,7 +14,7 @@ namespace Http
     public class HttpClient : IDisposable
     {
         private TcpClient client { get; set; }
-        private NetworkStream stream { get; set; }
+        private Stream stream { get; set; }
         private SslStream sslStream { get; set; }
         private byte[] sslBuffer = new byte[2048];
         private StreamReader reader { get; set; }
@@ -32,10 +33,10 @@ namespace Http
         {
             if (address == null)
                 throw new ArgumentNullException("address");
-                
-            if(httpHeader == null)
+
+            if (httpHeader == null)
                 throw new ArgumentNullException("httpHeader");
-            
+
             isHttps = Http.Url.IsHttps(address);
             baseAddress = Http.Url.GetBase(address);
             serverPort = Http.Url.GetPort(address);
@@ -45,35 +46,74 @@ namespace Http
             serverAddress = Dns.GetHostEntry(baseAddress).AddressList[0].ToString();
         }
         /// <summary>
+        /// Sends given HTTP header to server
+        /// </summary>
+        public void SendHeader(HttpHeader header) => sendData(HttpHeader.GetHeader(header));
+        /// <summary>
+        /// Sends data to server
+        /// </summary>
+        private void sendData(string data)
+        {
+            writer.Write(data);
+            writer.Flush();
+        }
+        //private bool afterHeader = false;
+        /// <summary>
+        /// Reads a line of characters from the current stream and returns the data as a string.
+        /// The next line from the input stream, or null if the end of the input stream is reached.
+        /// </summary>
+        public string ReadLine()
+        {
+            string line = reader.ReadLine();
+
+            // seems to be a bug...
+            // let's hack it!
+            if (line == "0" || line == null)
+                return null;
+
+            // possible bug artifacts are here
+            // let's just strip it
+            if (line.Length <= 4 && line.Length != 0)
+                return ReadLine();
+
+            return line;
+        }
+        /// <summary>
         /// Connects to HTTP server
         /// </summary>
         public void Connect()
         {
+
             client = new TcpClient(serverAddress, serverPort);
             if (isHttps)
             {
                 sslStream = new SslStream(client.GetStream());
                 sslStream.AuthenticateAsClient(baseAddress);
+                stream = sslStream;
             }
             else
             {
                 stream = client.GetStream();
-                reader = new StreamReader(client.GetStream());
-                writer = new StreamWriter(client.GetStream());
-                writer.Write(HttpHeader.GetHeader(header));
-                writer.Flush();
-                string data = reader.ReadLine();
-                Console.WriteLine(data);
             }
+            reader = new StreamReader(stream);
+            writer = new StreamWriter(stream);
+
+            sendData(Http.HttpHeader.GetHeader(header));
         }
         // Implement IDisposable.
         public void Dispose()
         {
             // Dispose everything
-            client.Dispose();
-            stream.Dispose();
-            reader.Dispose();
-            writer.Dispose();
+            if (client != null)
+                client.Dispose();
+            if (stream != null)
+                stream.Dispose();
+            if (sslStream != null)
+                sslStream.Dispose();
+            if (reader != null)
+                reader.Dispose();
+            if (writer != null)
+                writer.Dispose();
             // and finally..
             GC.SuppressFinalize(this);
         }
