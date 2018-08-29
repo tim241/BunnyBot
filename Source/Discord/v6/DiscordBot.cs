@@ -19,14 +19,14 @@ namespace Discord.v6
         }
         public void Connect()
         {
-            HttpHeader header = new HttpHeader
+            HttpHeader discordHeader = new HttpHeader
             {
                 GET = "/api/v6/users/@me",
                 HOST = "discordapp.com",
                 USER_AGENT = $"{name} ({url}, {version})",
                 AUTORIZATION = $"Bot {token}"
             };
-            using (HttpClient client = new HttpClient(discordUrl, header, true))
+            using (HttpClient client = new HttpClient(discordUrl, discordHeader, true))
             {
                 string line;
 
@@ -44,7 +44,6 @@ namespace Discord.v6
                 // Throw away null line
                 client.ReadLine();
 
-                client.SendHeader(header);
             }
         }
         public void Dispose()

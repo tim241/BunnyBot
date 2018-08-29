@@ -16,7 +16,6 @@ namespace Http
         private TcpClient client { get; set; }
         private Stream stream { get; set; }
         private SslStream sslStream { get; set; }
-        private byte[] sslBuffer = new byte[2048];
         private StreamReader reader { get; set; }
         private StreamWriter writer { get; set; }
         private string serverAddress { get; set; }
