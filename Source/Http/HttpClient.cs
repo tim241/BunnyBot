@@ -24,12 +24,14 @@ namespace Http
         private int serverPort { get; set; }
         private bool isHttps { get; set; }
         private HttpHeader header { get; set; }
+        private bool stripHeader { get; set; }
+        public int HttpCode { get; set; }
         /// <summary>
         ///  Creates a new HTTP client, but will not connect until Connect is called
         /// </summary>
         /// <param name="serverAddress">The URL that the HTTP client should connect to</param>
         /// <param name="httpHeader">First header</param>
-        public HttpClient(string address, HttpHeader httpHeader)
+        public HttpClient(string address, HttpHeader httpHeader, bool stripHeader = false)
         {
             if (address == null)
                 throw new ArgumentNullException("address");
@@ -43,7 +45,11 @@ namespace Http
 
             header = httpHeader;
 
+            this.stripHeader = stripHeader;
+
             serverAddress = Dns.GetHostEntry(baseAddress).AddressList[0].ToString();
+            
+            Connect();
         }
         /// <summary>
         /// Sends given HTTP header to server
@@ -57,14 +63,40 @@ namespace Http
             writer.Write(data);
             writer.Flush();
         }
-        //private bool afterHeader = false;
+        private bool strippingHeader = false;
+
         /// <summary>
         /// Reads a line of characters from the current stream and returns the data as a string.
         /// The next line from the input stream, or null if the end of the input stream is reached.
         /// </summary>
         public string ReadLine()
         {
+
             string line = reader.ReadLine();
+
+            // start of new header
+            if (line.StartsWith("HTTP/1.1 "))
+            {
+                // reset strippingHeader
+                strippingHeader = false;
+
+                int returnCode;
+                Int32.TryParse(line.Split("HTTP/1.1")[1].Split(' ')[1], out returnCode);
+
+                HttpCode = returnCode;
+            }
+
+            if (!strippingHeader && stripHeader)
+            {
+                strippingHeader = true;
+
+                while (line.Length != 0)
+                {
+                    line = ReadLine();
+                }
+
+                return ReadLine();
+            }
 
             // seems to be a bug...
             // let's hack it!
@@ -81,9 +113,8 @@ namespace Http
         /// <summary>
         /// Connects to HTTP server
         /// </summary>
-        public void Connect()
+        private void Connect()
         {
-
             client = new TcpClient(serverAddress, serverPort);
             if (isHttps)
             {
