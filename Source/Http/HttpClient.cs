@@ -24,7 +24,15 @@ namespace Http
         private bool isHttps { get; set; }
         private HttpHeader header { get; set; }
         private bool stripHeader { get; set; }
+        /// <summary>
+        /// Gets a value indicating whether the underlying Socket for a HttpClient is connected to a remote host.
+        ///
+        /// true if the HttpClient socket was connected to a remote resource as of the most recent operation; otherwise, false.
+        /// </summary>
         public bool Connected => client.Connected;
+        /// <summary>
+        ///  Disposes this HttpClient instance and requests that the underlying TCP connection be closed.
+        /// </summary>
         public void Disconnect() => client.Close();
         public int HttpCode { get; set; }
         /// <summary>
@@ -50,7 +58,7 @@ namespace Http
             this.stripHeader = stripHeader;
 
             serverAddress = Dns.GetHostEntry(baseAddress).AddressList[0].ToString();
-            
+
             Connect();
         }
         /// <summary>
@@ -82,8 +90,21 @@ namespace Http
                 // reset strippingHeader
                 strippingHeader = false;
 
-                int returnCode;
-                Int32.TryParse(line.Split("HTTP/1.1")[1].Split(' ')[1], out returnCode);
+                int returnCode = 0;
+
+                string[] splitLineArray = line.Split("HTTP/1.1 ");
+                string splitLine;
+                
+                bool parsingSuccess = false;
+
+                if (splitLineArray.Length > 1)
+                {
+                    splitLine = splitLineArray[1].Split(' ')[0];
+                    parsingSuccess = Int32.TryParse(splitLine, out returnCode);
+                }
+
+                if (!parsingSuccess)
+                    returnCode = 200;
 
                 HttpCode = returnCode;
             }
