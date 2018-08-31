@@ -24,12 +24,15 @@ namespace Http
         private bool isHttps { get; set; }
         private HttpHeader header { get; set; }
         private bool stripHeader { get; set; }
+        public bool Connected => client.Connected;
+        public void Disconnect() => client.Close();
         public int HttpCode { get; set; }
         /// <summary>
         ///  Creates a new HTTP client, but will not connect until Connect is called
         /// </summary>
         /// <param name="serverAddress">The URL that the HTTP client should connect to</param>
         /// <param name="httpHeader">First header</param>
+        /// <param name="stripHeader">Strips reponse header, defaults to false</param>
         public HttpClient(string address, HttpHeader httpHeader, bool stripHeader = false)
         {
             if (address == null)
