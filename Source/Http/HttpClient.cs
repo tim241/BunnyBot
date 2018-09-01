@@ -18,12 +18,13 @@ namespace Http
         private SslStream sslStream { get; set; }
         private StreamReader reader { get; set; }
         private StreamWriter writer { get; set; }
+        private HttpHeader header { get; set; }
         private string serverAddress { get; set; }
         private string baseAddress { get; set; }
         private int serverPort { get; set; }
         private bool isHttps { get; set; }
-        private HttpHeader header { get; set; }
         private bool stripHeader { get; set; }
+        public int HttpCode { get; set; }
         /// <summary>
         /// Gets a value indicating whether the underlying Socket for a HttpClient is connected to a remote host.
         ///
@@ -34,7 +35,6 @@ namespace Http
         ///  Disposes this HttpClient instance and requests that the underlying TCP connection be closed.
         /// </summary>
         public void Disconnect() => client.Close();
-        public int HttpCode { get; set; }
         /// <summary>
         ///  Creates a new HTTP client, but will not connect until Connect is called
         /// </summary>
@@ -74,7 +74,6 @@ namespace Http
             writer.Flush();
         }
         private bool strippingHeader = false;
-
         /// <summary>
         /// Reads a line of characters from the current stream and returns the data as a string.
         /// The next line from the input stream, or null if the end of the input stream is reached.
@@ -94,7 +93,7 @@ namespace Http
 
                 string[] splitLineArray = line.Split("HTTP/1.1 ");
                 string splitLine;
-                
+
                 bool parsingSuccess = false;
 
                 if (splitLineArray.Length > 1)
